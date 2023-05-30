@@ -3,3 +3,9 @@
 
 # Ignore Gradle build output directory
 build
+
+image/*
+!image/red.png
+!image/green.png
+!image/blue.png
+!image/white.png

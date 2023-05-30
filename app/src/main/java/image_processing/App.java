@@ -11,10 +11,136 @@ import javax.imageio.ImageIO;
 
 public class App {
     private static final String folderPath = "../image/";
+    private static final int height = 500;
+    private static final int width = 500;
 
     public static void main(String[] args) {
-        int height = 500;
-        int width = 500;
+        // editImageColor();
+        // negativePositive();
+        // convertToGrayScale();
+        convertToSepia();
+    }
+
+    private static void convertToSepia() {
+        File input_file = new File(folderPath, "profile.jpg");
+        File out_file = new File(folderPath, "sepia.jpg");
+        BufferedImage image = null;
+        int width, height = -1;
+        try {
+            image = ImageIO.read(input_file);
+            width = image.getWidth();
+            height = image.getHeight();
+            if (width == -1 || height == 1)
+                return;
+            for (int i = 0; i < height; i++) {
+                for (int j = 0; j < width; j++) {
+                    int pix = image.getRGB(j, i);
+                    int a = pix >> 24 & 0xff;
+                    int r = pix >> 16 & 0xff;
+                    int g = pix >> 8 & 0xff;
+                    int b = pix & 0xff;
+                    int n_r = ColorUtil.convertToSepiaVal(r, g, b, ColorVal.COLOR_RED);
+                    int n_g = ColorUtil.convertToSepiaVal(r, g, b, ColorVal.COLOR_GREEN);
+                    int n_b = ColorUtil.convertToSepiaVal(r, g, b, ColorVal.COLOR_BLUE);
+                    int new_pix = a << 24 | n_r << 16 | n_g << 8 | n_b;
+                    image.setRGB(j, i, new_pix);
+                }
+            }
+            ImageIO.write(image, "png", out_file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void convertToGrayScale() {
+        File input_file = new File(folderPath, "profile.jpg");
+        File out_file = new File(folderPath, "gray.jpg");
+        BufferedImage image = null;
+        int width = -1;
+        int height = -1;
+        try {
+            image = ImageIO.read(input_file);
+            width = image.getWidth();
+            height = image.getHeight();
+            if (width == -1 || height == -1)
+                return;
+            for (int i = 0; i < height; i++) {
+                for (int j = 0; j < width; j++) {
+                    int pix = image.getRGB(j, i);
+                    int a = 255;
+                    int r = pix >> 16 & 0xff;
+                    int g = pix >> 8 & 0xff;
+                    int b = pix & 0xff;
+                    int avg = (r + g + b) / 3;
+                    int outPix = a << 24 | avg << 16 | avg << 8 | avg;
+                    image.setRGB(j, i, outPix);
+                }
+            }
+            // System.out.println(Integer.toHexString(image.getRGB(0, 0)));
+            ImageIO.write(image, "png", out_file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void negativePositive() {
+        File input_file = new File(folderPath, "cat.jpg");
+        File out_file = new File(folderPath, "negaPosi.jpg");
+        BufferedImage image = null;
+        int width = -1;
+        int height = -1;
+        try {
+            image = ImageIO.read(input_file);
+            width = image.getWidth();
+            height = image.getHeight();
+            if (width == -1 || height == -1)
+                return;
+            for (int i = 0; i < height; i++) {
+                for (int j = 0; j < width; j++) {
+                    int pix = image.getRGB(j, i);
+                    int a = 255;
+                    int r = pix >> 16 & 0xff;
+                    int g = pix >> 8 & 0xff;
+                    int b = pix & 0xff;
+                    int outPix = a << 24 | 255 - r << 16 | 255 - g << 8 | 255 - b;
+                    image.setRGB(j, i, outPix);
+                }
+            }
+            // System.out.println(Integer.toHexString(image.getRGB(0, 0)));
+            ImageIO.write(image, "png", out_file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void editImageColor() {
+        // 左上に付ける色を作成
+        int a = 255;
+        int r = 200;
+        int g = 0;
+        int b = 200;
+        int p = (a << 24) | (r << 16) | (g << 8) | b;
+        // 左上に付ける色を作成
+
+        BufferedImage image = null;
+        File input_file = new File(folderPath, "blue.png");
+        File out_file = new File(folderPath, "out.png");
+        try {
+            image = ImageIO.read(input_file);
+            System.out.println("read complete");
+            for (int i = 0; i < 100; i++) {
+                for (int j = 0; j < 100; j++) {
+                    image.setRGB(i, j, p);
+                }
+            }
+            ImageIO.write(image, "png", out_file);
+            System.out.println("write complete");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void duplicateImage() {
 
         BufferedImage image = null;
         try {
