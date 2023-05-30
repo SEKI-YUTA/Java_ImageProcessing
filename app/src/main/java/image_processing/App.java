@@ -3,11 +3,17 @@
  */
 package image_processing;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageTypeSpecifier;
 
 public class App {
     private static final String folderPath = "../image/";
@@ -18,7 +24,128 @@ public class App {
         // editImageColor();
         // negativePositive();
         // convertToGrayScale();
-        convertToSepia();
+        // convertToSepia();
+        // generateRandomImage();
+        // mirrorImage();
+        // watermarkingImage();
+        printAsciiArt();
+    }
+
+    private static void printAsciiArt() {
+        File input_file = new File(folderPath, "twitter_logo.jpg");
+        int width, height = -1;
+        final int step = 20;
+        BufferedImage image = null;
+        final String[] StrArr = { "#", "<", ">", "=", "~", "|", "^", "." };
+        List<String> resultList = new ArrayList<>();
+        StringBuilder lineBuilder = new StringBuilder();
+        try {
+            image = ImageIO.read(input_file);
+            width = image.getWidth();
+            height = image.getHeight();
+            for (int i = 0; i < height; i += step) {
+                for (int j = 0; j < width; j += step) {
+                    int pix = image.getRGB(j, i);
+                    int r = pix >> 16 & 0xff;
+                    int g = pix >> 8 & 0xff;
+                    int b = pix & 0xff;
+                    int av = (r + g + b) / 3;
+                    int idx = av / (255 / StrArr.length) - 1;
+                    if (idx < 0)
+                        continue;
+                    lineBuilder.append(StrArr[idx] + StrArr[idx]);
+                }
+                resultList.add(lineBuilder.toString());
+                lineBuilder.setLength(0);
+            }
+            for (String line : resultList) {
+                System.out.println(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private static void watermarkingImage() {
+        File inpuit_file = new File(folderPath, "profile.jpg");
+        File out_file = new File(folderPath, "marked.jpg");
+        // int width, height = -1;
+        int width = -1;
+        int height = -1;
+        BufferedImage image = null;
+        BufferedImage out_image = null;
+
+        try {
+            image = ImageIO.read(inpuit_file);
+            width = image.getWidth();
+            height = image.getHeight();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        // out_image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+        Graphics graphics = image.getGraphics();
+        graphics.drawImage(image, width, height, null);
+        graphics.setFont(new Font("Arial", Font.PLAIN, 80));
+        graphics.setColor(new Color(255, 0, 0, 40));
+
+        graphics.drawString("yuta", width / 5, height / 3);
+
+        try {
+            ImageIO.write(image, "png", out_file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void mirrorImage() {
+        File input_file = new File(folderPath, "white.png");
+        File out_file = new File(folderPath, "mirror.png");
+        int width, height = -1;
+        BufferedImage image = null;
+        try {
+            image = ImageIO.read(input_file);
+            width = image.getWidth();
+            height = image.getHeight();
+
+            if (width == -1 || height == -1)
+                return;
+            BufferedImage out = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+            for (int i = 0; i < height; i++) {
+                for (int lx = 0, rx = width - 1; lx < width; lx++, rx--) {
+                    int pix = image.getRGB(lx, i);
+                    out.setRGB(rx, i, pix);
+                }
+            }
+
+            ImageIO.write(out, "png", out_file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void generateRandomImage() {
+        int width = 500;
+        int height = 500;
+        File out_file = new File(folderPath, "random.png");
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                int a = (int) (Math.random() * 256);
+                int r = (int) (Math.random() * 256);
+                int g = (int) (Math.random() * 256);
+                int b = (int) (Math.random() * 256);
+                int pix = a << 24 | r << 16 | g << 8 | b;
+                image.setRGB(j, i, pix);
+            }
+        }
+        try {
+            ImageIO.write(image, "png", out_file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private static void convertToSepia() {
