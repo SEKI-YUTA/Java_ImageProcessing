@@ -17,8 +17,6 @@ import javax.imageio.ImageTypeSpecifier;
 
 public class App {
     private static final String folderPath = "../image/";
-    private static final int height = 500;
-    private static final int width = 500;
 
     public static void main(String[] args) {
         // editImageColor();
@@ -28,7 +26,44 @@ public class App {
         // generateRandomImage();
         // mirrorImage();
         // watermarkingImage();
-        printAsciiArt();
+        // printAsciiArt();
+        concatImage();
+    }
+
+    private static void concatImage() {
+        File input_file = new File(folderPath, "red.png");
+        File out_file = new File(folderPath, "out.png");
+        // int width, height = -1;
+        int width = -1;
+        int height = -1;
+        BufferedImage image = null;
+        BufferedImage out_image = null;
+        try {
+            image = ImageIO.read(input_file);
+            width = image.getWidth();
+            height = image.getHeight();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (image != null && width != -1 && height != -1) {
+            out_image = new BufferedImage(width * 2, height * 2, BufferedImage.TYPE_INT_ARGB);
+            // 画像の読み込みに成功したら
+            for (int i = 0; i < width * 2; i++) {
+                for (int j = 0; j < height * 2; j++) {
+                    int tmpI = i % width;
+                    int tmpJ = j % height;
+                    int pix = image.getRGB(tmpI, tmpJ);
+                    out_image.setRGB(i, j, pix);
+                }
+            }
+        }
+
+        try {
+            ImageIO.write(out_image, "png", out_file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private static void printAsciiArt() {
@@ -268,7 +303,8 @@ public class App {
     }
 
     private static void duplicateImage() {
-
+        int width = 500;
+        int height = 500;
         BufferedImage image = null;
         try {
             File input_file = new File(folderPath, "blue.png");
