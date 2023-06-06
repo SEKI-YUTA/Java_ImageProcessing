@@ -27,7 +27,111 @@ public class App {
         // mirrorImage();
         // watermarkingImage();
         // printAsciiArt();
-        concatImage();
+        // concatImage();
+        // shrinkImage();
+        blueImage();
+    }
+
+    private static void blueImage() {
+        // File input_file = new File(folderPath, "blue.png");
+        File input_file = new File(folderPath, "profile.jpg");
+        File out_file = new File(folderPath, "blured.png");
+        int width = -1, height = -1;
+        BufferedImage image = null;
+        // 画像の読み込みと画像サイズの取得
+        try {
+            image = ImageIO.read(input_file);
+            width = image.getWidth();
+            height = image.getHeight();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("image type: " + image.getType());
+        if (image.getType() != BufferedImage.TYPE_3BYTE_BGR) {
+            System.out.println("対応していない形式の画像です");
+            return;
+        }
+        BufferedImage out_image = new BufferedImage(width, height, image.getType());
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                int newcolor = 0;
+                int red_sum = 0;
+                int green_sum = 0;
+                int blue_sum = 0;
+                if (i == 0 || i == width - 1 || j == 0 || j == height - 1) {
+                    // 端っこの場合そのままの色を使用
+                    int color = image.getRGB(i, j);
+                    out_image.setRGB(i, j, color);
+                } else {
+                    // 端っこではない場合
+                    for (int dx = -1; dx <= 1; dx++) {
+                        for (int dy = -1; dy <= 1; dy++) {
+                            int pix = image.getRGB(i + dx, j + dy);
+                            red_sum += pix >> 16 & 0xff;
+                            green_sum += pix >> 8 & 0xff;
+                            blue_sum += pix & 0xff;
+                        }
+                    }
+                    red_sum /= 9;
+                    green_sum /= 9;
+                    blue_sum /= 9;
+
+                    newcolor = red_sum << 16 | green_sum << 8 | blue_sum;
+                    out_image.setRGB(i, j, newcolor);
+                }
+            }
+        }
+
+        // 書き出し処理
+        try {
+            ImageIO.write(out_image, "png", out_file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void shrinkImage() {
+        // File input_file = new File(folderPath, "blue.png");
+        File input_file = new File(folderPath, "profile.jpg");
+        File out_file = new File(folderPath, "shrinked.png");
+        int width = -1, height = -1, resized_width = -1, resized_height = -1;
+        BufferedImage image = null;
+
+        try {
+            image = ImageIO.read(input_file);
+            width = image.getWidth();
+            height = image.getHeight();
+            resized_width = width / 2;
+            resized_height = height / 2;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("out size: " + resized_width + "x" + resized_height);
+        // 縮小した画像
+        BufferedImage shrinked = new BufferedImage(resized_width, resized_height, BufferedImage.TYPE_INT_ARGB);
+        // for (int i = 0; i < width; i += 2) {
+        // for (int j = 0; j < height; j += 2) {
+        // int pix = image.getRGB(i, j);
+        // // if(i / 2 <= resized_width && j / 2 <= resized_height) {}
+        // if (i / 2 < resized_width && j / 2 < resized_height) {
+        // shrinked.setRGB(i / 2, j / 2, pix);
+        // }
+        // }
+        // }
+        for (int i = 0; i < resized_width; i++) {
+            for (int j = 0; j < resized_height; j++) {
+                int pix = image.getRGB(i * 2, j * 2);
+                shrinked.setRGB(i, j, pix);
+            }
+        }
+
+        // 書き出し処理
+        try {
+            ImageIO.write(shrinked, "png", out_file);
+            System.out.println("書き出し完了");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private static void concatImage() {
